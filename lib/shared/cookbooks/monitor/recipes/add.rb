@@ -22,6 +22,12 @@ require 'fileutils'
 
 cloud_name = node.workorder.cloud.ciName
 
+ruby_block 'start_time' do
+  block do
+    node.set["monitor_start_time"] = Time.now.to_i  
+  end
+end
+
 ostype = ''
 begin
   ostype = node.workorder.payLoad.os[0].ciAttributes['ostype']
@@ -467,4 +473,14 @@ else
 
   end
 
+end
+
+ruby_block 'check_exec_time' do
+  block do
+    if (node.has_key?('monitor_start_time'))
+      duration = Time.now.to_i - node.monitor_start_time
+      Chef::Log.info("monitor execution time : #{duration}s")
+      puts "***TAG:monExecTime=#{duration}"
+    end
+  end
 end
